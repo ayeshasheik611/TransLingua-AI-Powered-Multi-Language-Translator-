@@ -1,10 +1,13 @@
 import streamlit as st
-from dotenv import load_dotenv
 import os
 from google import genai
 
-# Load environment variables (for local development with .env file)
-load_dotenv('backend/.env')
+# Try to load dotenv only if available (for local development)
+try:
+    from dotenv import load_dotenv
+    load_dotenv('backend/.env')
+except ImportError:
+    pass  # dotenv not available, will use Streamlit secrets instead
 
 # Configure page
 st.set_page_config(
