@@ -49,7 +49,7 @@ def get_gemini_model():
         st.stop()
     
     genai.configure(api_key=api_key)
-    return genai.GenerativeModel('gemini-1.5-flash')
+    return genai.GenerativeModel('models/gemini-1.5-flash')
 
 model = get_gemini_model()
 
