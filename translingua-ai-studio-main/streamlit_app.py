@@ -49,7 +49,27 @@ def get_gemini_model():
         st.stop()
     
     genai.configure(api_key=api_key)
-    return genai.GenerativeModel('models/gemini-1.5-flash')
+    
+    # List available models and use the first gemini model found
+    try:
+        models = genai.list_models()
+        gemini_models = [m for m in models if 'gemini' in m.name.lower() and 'generateContent' in m.supported_generation_methods]
+        if gemini_models:
+            model_name = gemini_models[0].name
+            st.info(f"Using model: {model_name}")
+            return genai.GenerativeModel(model_name)
+    except:
+        pass
+    
+    # Fallback to common model names
+    for model_name in ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro', 'gemini-1.0-pro']:
+        try:
+            return genai.GenerativeModel(model_name)
+        except:
+            continue
+    
+    st.error("❌ No compatible Gemini model found. Please check your API key.")
+    st.stop()
 
 model = get_gemini_model()
 
