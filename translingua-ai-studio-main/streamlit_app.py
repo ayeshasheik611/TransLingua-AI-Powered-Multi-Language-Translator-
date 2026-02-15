@@ -56,7 +56,6 @@ def get_gemini_model():
         gemini_models = [m for m in models if 'gemini' in m.name.lower() and 'generateContent' in m.supported_generation_methods]
         if gemini_models:
             model_name = gemini_models[0].name
-            st.info(f"Using model: {model_name}")
             return genai.GenerativeModel(model_name)
     except:
         pass
@@ -116,7 +115,7 @@ st.markdown("### AI-Powered Language Translator")
 st.markdown("---")
 
 # Create two columns for language selection
-col1, col2, col3 = st.columns([2, 1, 2])
+col1, col2 = st.columns([1, 1])
 
 with col1:
     source_language = st.selectbox(
@@ -127,15 +126,6 @@ with col1:
     )
 
 with col2:
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("🔄", help="Swap languages"):
-        # Swap languages
-        temp = st.session_state.get('source_language', source_language)
-        st.session_state['source_language'] = st.session_state.get('target_language', 'French')
-        st.session_state['target_language'] = temp
-        st.rerun()
-
-with col3:
     target_language = st.selectbox(
         "Target Language",
         LANGUAGES,
@@ -177,24 +167,23 @@ if 'translated_text' in st.session_state:
     st.markdown("---")
     st.markdown("### 📝 Translated Text")
     
-    # Display in a nice box
-    st.markdown(f"""
-        <div class="success-box">
-            <p style="font-size: 18px; line-height: 1.6; margin: 0;">
-                {st.session_state['translated_text']}
-            </p>
-        </div>
-    """, unsafe_allow_html=True)
+    # Display translated text in a text area for better visibility and copying
+    st.text_area(
+        label="Translation",
+        value=st.session_state['translated_text'],
+        height=150,
+        key="translation_output",
+        label_visibility="collapsed"
+    )
     
     # Action buttons
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("📋 Copy to Clipboard"):
-            st.code(st.session_state['translated_text'], language=None)
-            st.success("✅ Text ready to copy!")
+        if st.button("📋 Copy to Clipboard", use_container_width=True):
+            st.success("✅ Select the text above and copy it (Ctrl+C or Cmd+C)")
     
     with col2:
-        if st.button("🗑️ Clear"):
+        if st.button("🗑️ Clear", use_container_width=True):
             del st.session_state['translated_text']
             if 'last_input' in st.session_state:
                 del st.session_state['last_input']
