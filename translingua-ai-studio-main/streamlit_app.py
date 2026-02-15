@@ -1,6 +1,6 @@
 import streamlit as st
 import os
-from google import genai
+import google.generativeai as genai
 
 # Try to load dotenv only if available (for local development)
 try:
@@ -40,16 +40,18 @@ st.markdown("""
 
 # Initialize Gemini client
 @st.cache_resource
-def get_gemini_client():
+def get_gemini_model():
     # Try to get API key from Streamlit secrets first, then from environment variable
     api_key = st.secrets.get("GEMINI_API_KEY") or os.getenv('GEMINI_API_KEY')
     
     if not api_key:
-        st.error("⚠️ GEMINI_API_KEY not found. Please add it to .streamlit/secrets.toml or backend/.env file")
+        st.error("⚠️ GEMINI_API_KEY not found. Please add it to Streamlit secrets")
         st.stop()
-    return genai.Client(api_key=api_key)
+    
+    genai.configure(api_key=api_key)
+    return genai.GenerativeModel('gemini-pro')
 
-client = get_gemini_client()
+model = get_gemini_model()
 
 # Translation function
 def translate_text(text, source_language, target_language):
@@ -63,10 +65,7 @@ def translate_text(text, source_language, target_language):
     )
     
     try:
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt
-        )
+        response = model.generate_content(prompt)
         return response.text
     except Exception as e:
         return f"Error: {str(e)}"
